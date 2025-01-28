@@ -1,9 +1,10 @@
 import pyaudio
 import numpy as np
 import socket
+import json
 
 class Synth:
-    def __init__(self, rate=44100, chunk=1024):
+    def __init__(self, conn, rate=44100, chunk=1024):
         self.audio = pyaudio.PyAudio()
         self.stream = self.audio.open(
             format=pyaudio.paFloat32,
@@ -17,6 +18,8 @@ class Synth:
         self.frequency = 440
         self.rate = rate
         self.chunk = chunk
+
+        self.conn = conn
 
     def toggle(self):
         if self.stream.is_active():
@@ -32,6 +35,15 @@ class Synth:
         while self.stream.is_active():
             self.x = np.arange(start, end) / self.rate
             self.y = np.sin(2 * np.pi * self.frequency * self.x)
+
+            data = {'x': self.x.tolist(), 'y': self.y.tolist()}
+
+            try:
+                message = (json.dumps(data)).encode('utf-8')
+                conn.send(message)
+            except BrokenPipeError:
+                print("Client disconnected")
+                break
 
             chunk = self.y
 
@@ -51,5 +63,5 @@ if __name__ == "__main__":
     conn, addr = server.accept()
     print(f"Connected by {addr}")
 
-    synth = Synth()
+    synth = Synth(conn)
     synth.toggle()

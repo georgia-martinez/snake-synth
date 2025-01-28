@@ -7,16 +7,18 @@ function createWindow () {
     title: "Snake Synth",
     width: 800,
     height: 600,
-
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'), // Path to your preload.js
+      contextIsolation: true,  // Enable context isolation
+      nodeIntegration: false,  // Disable nodeIntegration for security
+    },
   })
 
   win.loadFile(path.join(__dirname, "build", "index.html"))
-}
 
-let socket;
+  win.webContents.openDevTools()
 
-app.whenReady().then(() => {
-  createWindow();
+  let socket;
 
   socket = new net.Socket();
   socket.connect(1337, '127.0.0.1', () => {
@@ -24,11 +26,25 @@ app.whenReady().then(() => {
   });
 
   socket.on('data', (data) => {
-    console.log('Received:', data.toString());
+    const message = JSON.parse(data);
+
+    if (win) {
+      win.webContents.send('sinewave-data', message);
+    }
+
   });
 
   ipcMain.handle('send-to-server', async (event, message) => {
     socket.write(message);
     return 'Message sent';
   });
+
+}
+
+app.whenReady().then(createWindow);
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
 });
