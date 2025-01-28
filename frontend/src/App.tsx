@@ -1,7 +1,6 @@
 import p5 from "p5";
 import React, { useEffect, useRef, useState } from "react";
 
-// Define the type of the sine wave data
 type SineWaveData = {
     x: number[];
     y: number[];
@@ -21,6 +20,7 @@ const App = () => {
         } else {
             console.error("ipcRenderer is not available");
         }
+        
         return () => {
             // Cleanup listeners
             if (ipcRenderer) {
@@ -30,9 +30,8 @@ const App = () => {
     }, []);
 
     useEffect(() => {
-        if (!sineWaveData) return; // Wait until data is ready
+        if (!sineWaveData) return;
 
-        // Setup p5.js sketch
         const sketch = (p: any) => {
             p.setup = () => {
                 p.createCanvas(window.innerWidth, window.innerHeight);
@@ -46,20 +45,21 @@ const App = () => {
                     p.noFill();
                     p.beginShape();
 
-                    const xMax = sineWaveData.x[sineWaveData.x.length - 1] || 1;
-                    const yMax =
-                        Math.max(...sineWaveData.y.map((y) => Math.abs(y))) ||
-                        1;
+                    const xMin = Math.min(...sineWaveData.x);
+                    const xMax = Math.max(...sineWaveData.x);
+                    const yMin = Math.min(...sineWaveData.y);
+                    const yMax = Math.max(...sineWaveData.y);
 
-                    const xScale = p.width / xMax;
-                    const yScale = p.height / (2 * yMax);
+                    const xScale = p.width / (xMax - xMin);
+                    const yScale = (p.height * 0.8) / (yMax - yMin);
 
                     sineWaveData.x.forEach((xVal, i) => {
-                        const wrappedX = (xVal * xScale) % p.width;
                         const yVal = sineWaveData.y[i];
-                        const scaledY = p.height / 2 - yVal * yScale;
 
-                        p.vertex(wrappedX, scaledY);
+                        const scaledX = (xVal - xMin) * xScale;
+                        const scaledY = p.height / 2 - (yVal * yScale);
+
+                        p.vertex(scaledX, scaledY);
                     });
 
                     p.endShape();

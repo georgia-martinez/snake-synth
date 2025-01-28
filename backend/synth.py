@@ -2,6 +2,7 @@ import pyaudio
 import numpy as np
 import socket
 import json
+import time
 
 class Synth:
     def __init__(self, conn, rate=44100, chunk=1024):
@@ -36,10 +37,13 @@ class Synth:
             self.x = np.arange(start, end) / self.rate
             self.y = np.sin(2 * np.pi * self.frequency * self.x)
 
-            data = {'x': self.x.tolist(), 'y': self.y.tolist()}
+            data = {
+                'x': self.x.tolist(),
+                'y': self.y.tolist()
+            }
 
             try:
-                message = (json.dumps(data)).encode('utf-8')
+                message = (json.dumps(data) + "\n").encode('utf-8')
                 conn.send(message)
             except BrokenPipeError:
                 print("Client disconnected")
@@ -53,6 +57,7 @@ class Synth:
 
             start = end
             end += self.chunk
+
 
 if __name__ == "__main__":
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
