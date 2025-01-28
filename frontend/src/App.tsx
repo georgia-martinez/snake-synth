@@ -1,7 +1,7 @@
 import { Oscilloscope } from "./components/Oscilloscope";
 
 const App = () => {
-    return <Oscilloscope />;
+  return <Oscilloscope />;
 };
 
 export default App;

@@ -1,49 +1,48 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain } = require("electron");
 const net = require("net");
 const path = require("path");
 
-function createWindow () {
+function createWindow() {
   const win = new BrowserWindow({
     title: "Snake Synth",
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
     },
-  })
+  });
 
-  win.loadFile(path.join(__dirname, "build", "index.html"))
+  win.loadFile(path.join(__dirname, "build", "index.html"));
 
-  win.webContents.openDevTools()
+  win.webContents.openDevTools();
 
   let socket;
 
   socket = new net.Socket();
-  socket.connect(1337, '127.0.0.1', () => {
-    console.log('Connected to server!');
+  socket.connect(1337, "127.0.0.1", () => {
+    console.log("Connected to server!");
   });
 
-  socket.on('data', (data) => {
+  socket.on("data", (data) => {
     const message = JSON.parse(data);
 
     if (win) {
-      win.webContents.send('sinewave-data', message);
+      win.webContents.send("sinewave-data", message);
     }
-
   });
 
-  ipcMain.handle('send-to-server', async (event, message) => {
+  ipcMain.handle("send-to-server", async (event, message) => {
     socket.write(message);
-    return 'Message sent';
+    return "Message sent";
   });
 }
 
 app.whenReady().then(createWindow);
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
     app.quit();
   }
 });
