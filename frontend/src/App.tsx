@@ -1,5 +1,5 @@
 function App() {
-  return "Snake Synth"
+    return "Snake Synth";
 }
 
 export default App;

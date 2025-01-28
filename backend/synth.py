@@ -1,6 +1,6 @@
 import pyaudio
 import numpy as np
-
+import socket
 
 class Synth:
     def __init__(self, rate=44100, chunk=1024):
@@ -43,6 +43,13 @@ class Synth:
             end += self.chunk
 
 if __name__ == "__main__":
-    synth = Synth()
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind(("127.0.0.1", 1337))
+    server.listen(1)
+    print("Waiting for a connection...")
 
+    conn, addr = server.accept()
+    print(f"Connected by {addr}")
+
+    synth = Synth()
     synth.toggle()
