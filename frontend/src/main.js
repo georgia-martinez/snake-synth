@@ -5,8 +5,6 @@ const path = require("path");
 function createWindow() {
   const win = new BrowserWindow({
     title: "Snake Synth",
-    width: 800,
-    height: 600,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -14,7 +12,8 @@ function createWindow() {
     },
   });
 
-  win.loadFile(path.join(__dirname, "build", "index.html"));
+  win.loadFile(path.join(__dirname, "..", "build", "index.html"));
+  win.maximize();
 
   win.webContents.openDevTools();
 
