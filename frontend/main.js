@@ -38,7 +38,6 @@ function createWindow () {
     socket.write(message);
     return 'Message sent';
   });
-
 }
 
 app.whenReady().then(createWindow);
